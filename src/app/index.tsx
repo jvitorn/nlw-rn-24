@@ -1,21 +1,37 @@
 import { CategoryBtn } from "@/components/category-btn"
 import { Header } from "@/components/header"
-import { CATEGORIES } from "@/utils/data/products"
-import { View, FlatList } from "react-native"
-import { useState } from "react"
+import { Product } from "@/components/product"
+import { CATEGORIES, MENU } from "@/utils/data/products"
+import { View, FlatList, SectionList, Text } from "react-native"
+import { useState, useRef } from "react"
+import { Link } from "expo-router"
 
 
 export default function Home() {
     // função que atualiza o estado
-    const [categorySelected, setCategorySelected] = useState(CATEGORIES[0])
+    const [category, setCategorySelected] = useState(CATEGORIES[0])
+    // referencia da sessão 
+    const sectionListRef = useRef<SectionList>(null)
     // handle que muda a categoria conforme selecionada
-    const handleCategorySelected = (selectedCategory: string) => setCategorySelected(selectedCategory)
+    const handleCategorySelected = (selectedCategory: string) => {
+        setCategorySelected(selectedCategory)
+
+        const sectionIdx = CATEGORIES.findIndex((cSelect) => cSelect === selectedCategory)
+
+        if (sectionListRef.current) {
+            sectionListRef.current.scrollToLocation({
+                animated: true,
+                sectionIndex: sectionIdx,
+                itemIndex: 0
+            })
+        }
+    }
 
     return (
         <View className="flex-1 pt-8">
             {/* titulo */}
             <Header title="Faça seu pedido" cartQdt={5} />
-            {/* semelhante a um ng-repeat */}
+            {/* semelhante a um repeat: usada para renderizar listas simples e homogêneas, */}
             <FlatList
                 data={CATEGORIES}
                 keyExtractor={(i) => i}
@@ -23,7 +39,7 @@ export default function Home() {
                 renderItem={
                     ({ item }) =>
                         <CategoryBtn title={item}
-                            isSelected={item === categorySelected}
+                            isSelected={item === category}
                             onPress={() => handleCategorySelected(item)} />}
                 horizontal
                 className="max-h-10 mt-5"
@@ -31,6 +47,28 @@ export default function Home() {
                 showsHorizontalScrollIndicator={false}
                 // espaçamento 
                 contentContainerStyle={{ gap: 12, paddingHorizontal: 20 }}
+            />
+            {/* semelhante a um repeat: projetada para renderizar listas com seções */}
+            <SectionList
+                ref={sectionListRef}
+                sections={MENU}
+                keyExtractor={(i) => i.id}
+                stickySectionHeadersEnabled={false}
+                // conteudo dos lanches
+                renderItem={({ item }) => (
+                    <Link href={`/product/${item.id}`} asChild>
+                        <Product data={item} />
+                    </Link>
+                )}
+                // titulo das categorias
+                renderSectionHeader={({ section: { title } }) => (
+                    <Text className="text-xl text-white font-heading mt-8 mb-3">
+                        {title}
+                    </Text>
+                )}
+                className="flex-1 p-5"
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 100 }}
             />
 
         </View>
