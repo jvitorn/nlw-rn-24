@@ -2,16 +2,19 @@ import { CategoryBtn } from "@/components/category-btn"
 import { Header } from "@/components/header"
 import { Product } from "@/components/product"
 import { CATEGORIES, MENU } from "@/utils/data/products"
+import { useCardStore } from "@/stores/cart-store"
 import { View, FlatList, SectionList, Text } from "react-native"
 import { useState, useRef } from "react"
 import { Link } from "expo-router"
 
-
 export default function Home() {
+    const cartStore = useCardStore()
     // função que atualiza o estado
     const [category, setCategorySelected] = useState(CATEGORIES[0])
     // referencia da sessão 
     const sectionListRef = useRef<SectionList>(null)
+
+    const cartQdtItens = cartStore.products.reduce((total,product) => total + product.quantity,0)
     // handle que muda a categoria conforme selecionada
     const handleCategorySelected = (selectedCategory: string) => {
         setCategorySelected(selectedCategory)
@@ -30,7 +33,7 @@ export default function Home() {
     return (
         <View className="flex-1 pt-8">
             {/* titulo */}
-            <Header title="Faça seu pedido" cartQdt={5} />
+            <Header title="Faça seu pedido" cartQdt={cartQdtItens} />
             {/* semelhante a um repeat: usada para renderizar listas simples e homogêneas, */}
             <FlatList
                 data={CATEGORIES}
