@@ -9,13 +9,19 @@ export type ProductCartProps = ProductProps & {
 type StateProps = {
     products: ProductCartProps[]
     add: (product: ProductProps) => void
+    remove: (productId: string) => void
 }
 
-export const useCardStore = create<StateProps>( (set) => ({
+export const useCardStore = create<StateProps>((set) => ({
     products: [],
-    
-    add: (product: ProductProps) => 
-    set((state) => ({
-        products: cartInMemory.add(state.products, product)
-    })),
+
+    add: (product: ProductProps) =>
+        set((state) => ({
+            products: cartInMemory.add(state.products, product)
+        })),
+
+    remove: (productId: string) =>
+        set((state) => ({
+            products: cartInMemory.remove(state.products, productId)
+        })),
 }))
