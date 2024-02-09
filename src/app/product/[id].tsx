@@ -37,10 +37,16 @@ export default function Product() {
                 <Text className="text-slate-400 font-body text-base leading-6 mb-2">
                     {product.description}
                 </Text>
+                {/*  se tiver ingredients vai aparecer */}
+                {
+                    product.ingredients.length > 0 && (
+                        <Text className="text-xl text-white font-heading mt-8 mb-3">
+                            Ingredientes:
+                        </Text>
+                    )
+                }
 
-                <Text className="text-xl text-white font-heading mt-8 mb-3">
-                    Ingredientes:
-                </Text>
+
                 {product.ingredients.map((ingredient) => (
                     <Text key={ingredient} className="text-slate-400 font-body text-base leading-6">
                         {"\u2023"}  {ingredient}

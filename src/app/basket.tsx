@@ -1,5 +1,7 @@
 import { useState } from "react"
-import { View, Text, ScrollView, Alert } from "react-native"
+import { View, Text, ScrollView, Alert, Linking } from "react-native"
+import { useNavigation } from "expo-router"
+
 import { Feather } from "@expo/vector-icons"
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view"
 
@@ -13,12 +15,13 @@ import { Input } from "@/components/input"
 import { Button } from "@/components/button"
 import { LinkButton } from "@/components/link-btn"
 
-
+const PHONE_NUMBER = "yourphone"
 
 export default function Basket() {
     const [address, setAddress] = useState("");
-
     const cartStore = useCardStore()
+    const navigation = useNavigation()
+
 
     const total = formatCurrency(cartStore.products.reduce((total, p) => total + (p.price * p.quantity), 0))
 
@@ -37,23 +40,22 @@ export default function Basket() {
     }
 
     function handleOrder() {
-      if(address.trim().length === 0) {
-        return Alert.alert("Pedido","Informe os dados da entrega")
-      }
-
+      if(address.trim().length === 0) return Alert.alert("Pedido","Informe os dados da entrega")
+      
       const products = cartStore.products.map((p)=>`\n (${p.quantity}x) - ${p.title}`).join("")
 
       const message = `
       🌟 **[NOVO PEDIDO]** 🌟
-    
-      Informações de Entrega: ${address}
+      \n Informações de Entrega: ${address}
       
       ${products}
       
       Total do Pedido: ${total}
       `
-
-      console.log(message)
+      Linking.openURL(`http://api.whatsapp.com/send?phone=${PHONE_NUMBER}&text=${message}`)
+        
+      cartStore.clear()
+      navigation.goBack()
     }
 
     return <View className="flex-1 pt-8">
@@ -87,7 +89,10 @@ export default function Basket() {
 
                     <Input 
                     onChangeText={setAddress}
-                    placeholder="Informe o Endereço de entrega com Rua, Bairro, CEP, nº e complemento" />
+                    onSubmitEditing={handleOrder}
+                    blurOnSubmit={true}
+                    returnKeyType="next"
+                    placeholder="Informe o Endereço de entrega com Rua, Bairro, CEP, nº e complemento..." />
                 </View>
             </ScrollView>
         </KeyboardAwareScrollView>
