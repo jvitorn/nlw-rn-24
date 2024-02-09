@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { View, Text, ScrollView, Alert } from "react-native"
 import { Feather } from "@expo/vector-icons"
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view"
@@ -15,7 +16,10 @@ import { LinkButton } from "@/components/link-btn"
 
 
 export default function Basket() {
+    const [address, setAddress] = useState("");
+
     const cartStore = useCardStore()
+
     const total = formatCurrency(cartStore.products.reduce((total, p) => total + (p.price * p.quantity), 0))
 
 
@@ -30,6 +34,26 @@ export default function Basket() {
                 onPress: () => cartStore.remove(product.id)
             }
         ])
+    }
+
+    function handleOrder() {
+      if(address.trim().length === 0) {
+        return Alert.alert("Pedido","Informe os dados da entrega")
+      }
+
+      const products = cartStore.products.map((p)=>`\n (${p.quantity}x) - ${p.title}`).join("")
+
+      const message = `
+      🌟 **[NOVO PEDIDO]** 🌟
+    
+      Informações de Entrega: ${address}
+      
+      ${products}
+      
+      Total do Pedido: ${total}
+      `
+
+      console.log(message)
     }
 
     return <View className="flex-1 pt-8">
@@ -61,13 +85,15 @@ export default function Basket() {
                         <Text className="text-lime-400 text-2xl font-heading">{total}</Text>
                     </View>
 
-                    <Input placeholder="Informe o Endereço de entrega com Rua, Bairro, CEP, nº e complemento" />
+                    <Input 
+                    onChangeText={setAddress}
+                    placeholder="Informe o Endereço de entrega com Rua, Bairro, CEP, nº e complemento" />
                 </View>
             </ScrollView>
         </KeyboardAwareScrollView>
         {/* botao de enviar pedido */}
         <View className="p-5 gap-5">
-            <Button>
+            <Button onPress={handleOrder}>
                 <Button.Text>
                     Enviar Pedido
                 </Button.Text>
